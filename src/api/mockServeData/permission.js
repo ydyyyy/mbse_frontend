@@ -210,10 +210,16 @@ export default {
     return {
       code: 20000,
       data: {
-        name: "三级 1-1-1",
-        id: 3,
-        content: "This is the content of the file",
-      },
+        "id": 4,
+        "name": "file1-1-1",
+        "size": 10,
+        "uploadTime": "2024-04-12T06:37:31.953+00:00",
+        "content": "The Bootstrap Monitor of DPU-BOOT CSC shall be activated if the Clear-To-Send (CTS) signal is active on the RS-232 interface.   If no activity is detected on the RS-232 interface within 30 seconds, the Bootstrap shall load a configuration of DPU-RTOS according to BC_INDEX in the SYSTEM_BLOCK.",
+        "projectId": 1,
+        "parentId": 1,
+        "children": [],
+        "file": true
+    }
     };
   },
 

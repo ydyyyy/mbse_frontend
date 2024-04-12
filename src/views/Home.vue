@@ -88,7 +88,7 @@ import "quill/dist/quill.bubble.css";
 //引入font.css 
 import '../assets/css/font.css'
 
-getFileById
+
 // 自定义字体大小
 let Size = Quill.import('attributors/style/size')
   Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px']

@@ -166,7 +166,7 @@
                 '上传中：' + uploadFileLoading.progress + '%'
               "
             >
-              <el-form-item label="选择文件：">
+              <el-form-item label="选择两个文件：">
                 <el-upload
                   class="upload-demo"
                   action=""
@@ -184,11 +184,11 @@
               <el-form-item label="选中的文件：">
                 <div>
                   {{
-                    uploadFileInfos.length > 0
-                      ? uploadFileInfos
-                          .map((fileInfo) => fileInfo.file.name)
-                          .join(", ")
-                      : "未选择任何文件"
+                    uploadFileInfo.length == 3
+                      ? uploadFileInfo[1].file.name +
+                        " " +
+                        uploadFileInfo[2].file.name
+                      : "未选择足够文件"
                   }}
                 </div>
               </el-form-item>
@@ -274,7 +274,7 @@ import axios from "axios";
 import qs from "qs";
 // js-base64
 import { Base64 } from "js-base64";
-import { getTypeFiles } from "../api";
+import { getTypeFiles, sendToServer } from "../api";
 
 export default {
   name: "FilesIndex",
@@ -609,32 +609,44 @@ export default {
     },
     // 上传文件
     uploadFile() {
-      if (this.uploadFileInfo.fileInfo.ftiid == "") {
-        this.showMessage(false, "请选择分类名称");
+      const files = this.uploadFileInfo;
+      if (files.length != 3) {
+        this.showMessage(false, "请选择两个文件");
         return;
       }
-      if (this.uploadFileInfo.fileInfo.info == "") {
-        this.showMessage(false, "文件描述必须填写");
-        return;
+      const readers = [];
+      for (let i = 1; i < files.length; i++) {
+        readers[i] = new FileReader();
+        readers[i].readAsText(files[i].file);
       }
-      if (this.uploadFileInfo.file == null) {
-        this.showMessage(false, "必须选择一个文件");
-        return;
-      }
-      if (this.uploadFileInfo.file.size > this.fileSize) {
-        this.showMessage(false, "文件大小超过限制");
-        return;
-      }
-      this.sendFile(
-        "/karl-openapi/FileInfo/Add",
-        this.uploadFileInfo,
-        "POST",
-        this.uploadFileLoading
-      );
+      Promise.all(
+        readers.map(
+          (reader) =>
+            new Promise((resolve) => {
+              reader.onload = () => resolve(reader.result);
+            })
+        )
+      )
+        .then((contents) => {
+          console.log("文件内容已读取，发送到服务器：", contents);
+          sendToServer(contents[1], contents[2]).then((data) => {
+            console.log("需求链接信息：", data);
+          });
+        })
+        .catch((error) => {
+          console.error("读取文件发生错误:", error);
+        });
     },
     // 文件上传选择文件组件触发的函数
     chooseUploadFile(file) {
-      this.uploadFileInfo.file = file;
+      console.log(this.uploadFileInfo.length);
+      this.uploadFileInfo.push({
+        file: file,
+        fileInfo: {
+          ftiid: "",
+          info: "",
+        },
+      });
       return false;
     },
     // 关闭文件上传对话框
