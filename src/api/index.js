@@ -30,3 +30,7 @@ export const getMenu = (data) => {
 export const getProjects = () => {
   return http.get("/permission/getProjects");
 };
+
+export const getFiles = () => {
+  return http.get("/permission/getFiles");
+};

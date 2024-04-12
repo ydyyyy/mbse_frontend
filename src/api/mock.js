@@ -17,3 +17,5 @@ Mock.mock(/api\/permission\/getMenu/,'post',permission.getMenu)
 
 // 定义mock请求拦截
 Mock.mock('/api/permission/getProjects', permission.getProjects)
+
+Mock.mock('/api/permission/getFiles', permission.getFiles)

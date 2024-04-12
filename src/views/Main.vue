@@ -1,7 +1,6 @@
 <template>
     <div>
         <el-container>
-            
             <el-container>
                 <el-header>
                     <common-header />

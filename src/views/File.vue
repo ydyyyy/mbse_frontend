@@ -14,34 +14,6 @@
         <!-- 顶部功能操作区 -->
         <div class="typeDos">
           <div>
-            <el-select
-              v-model="fileQueryInfo.fileInfo.ftiid"
-              :remote-method="queryRmFun"
-              :loading="fileTypeLoading"
-              size="medium"
-              placeholder="分类名称"
-              clearable
-              filterable
-              remote
-            >
-              <el-option
-                v-for="fl in fileTypeList"
-                :key="fl.ftiid"
-                :label="fl.name"
-                :value="fl.ftiid"
-              ></el-option>
-            </el-select>
-          </div>
-          <div>
-            <el-input
-              v-model="fileQueryInfo.fileInfo.info"
-              placeholder="文件描述"
-              prefix-icon="el-icon-search"
-              size="medium"
-              clearable
-            ></el-input>
-          </div>
-          <div>
             <el-button
               type="primary"
               icon="el-icon-search"
@@ -69,6 +41,7 @@
             >
           </div>
         </div>
+        
         <!-- 数据展示部分 -->
         <div
           class="filesBody"
@@ -307,51 +280,6 @@
       </div>
     </div>
 
-    <!-- 文件分类信息修改对话框 -->
-    <div>
-      <el-dialog
-        title="修改分类信息"
-        center
-        :visible.sync="showTypeUpdateFrom"
-        :close-on-press-escape="false"
-        :close-on-click-modal="false"
-        :show-close="false"
-      >
-        <!-- 操作表单 -->
-        <el-form>
-          <el-form-item label="分类名称：">
-            <el-input
-              v-model="updateTypeInfo.name"
-              placeholder="请输入分类名称"
-              clearable
-            ></el-input>
-          </el-form-item>
-          <el-form-item>
-            <div class="doingFormBtns">
-              <div>
-                <el-button
-                  size="medium"
-                  type="primary"
-                  icon="el-icon-position"
-                  @click="updateType"
-                  :loading="updateTypeLoading"
-                  >提交</el-button
-                >
-              </div>
-              <div>
-                <el-button
-                  size="medium"
-                  icon="el-icon-close"
-                  @click="closeUpdateType"
-                  >关闭</el-button
-                >
-              </div>
-            </div>
-          </el-form-item>
-        </el-form>
-      </el-dialog>
-    </div>
-
     <!-- 文件信息上传对话框 -->
     <div>
       <el-dialog
@@ -369,25 +297,6 @@
         >
           <el-form-item label="附加信息：">
             <div class="fileInfoWrites">
-              <div>
-                <el-select
-                  v-model="uploadFileInfo.fileInfo.ftiid"
-                  :remote-method="queryRmFun"
-                  :loading="fileTypeLoading"
-                  size="medium"
-                  placeholder="分类名称"
-                  clearable
-                  filterable
-                  remote
-                >
-                  <el-option
-                    v-for="fl in fileTypeList"
-                    :key="fl.ftiid"
-                    :label="fl.name"
-                    :value="fl.ftiid"
-                  ></el-option>
-                </el-select>
-              </div>
               <div>
                 <el-input
                   v-model="uploadFileInfo.fileInfo.info"
@@ -533,9 +442,9 @@
                   remote
                 >
                   <el-option
-                    v-for="fl in fileTypeList"
-                    :key="fl.ftiid"
-                    :value="fl.ftiid"
+                    v-for="fl in fileList"
+                    :key="fl.id"
+                    :value="fl.id"
                     :label="fl.name"
                   ></el-option>
                 </el-select>
@@ -610,6 +519,8 @@ import qs from "qs";
 // js-base64
 import { Base64 } from "js-base64";
 
+import { getFiles } from "../api";
+
 export default {
   name: "FilesIndex",
   data() {
@@ -618,39 +529,6 @@ export default {
       title: "项目管理",
       // 接口服务地址
       baseUrl: "https://kangxianghui.top",
-      // ======== 分类信息部分 ========
-      // 分类信息查询条件
-      typeQueryInfo: {
-        fileTypeInfo: {
-          name: "",
-        },
-        page: {
-          pageNumber: 1,
-          pageSize: 10,
-        },
-      },
-      // 分类信息查询加载
-      typeLoading: false,
-      // 分类信息数据集合
-      typeList: [],
-      // 分类信息数据分页
-      typePage: {},
-      // 是否打开分类信息添加对话框
-      showTypeAddFrom: false,
-      // 分类信息添加信息对象
-      addTypeInfo: {
-        name: "",
-      },
-      // 分类信息添加加载
-      addTypeLoading: false,
-      // 是否打开分类信息修改对话框
-      showTypeUpdateFrom: false,
-      // 分类信息修改信息对象
-      updateTypeInfo: {},
-      // 分类信息修改加载
-      updateTypeLoading: false,
-      // 分类信息删除加载
-      delTypeLoading: false,
       // ======== 文件信息部分 ========
       fileSize: 10 * 1000 * 1024,
       fileQueryInfo: {
@@ -658,23 +536,13 @@ export default {
           ftiid: "",
           info: "",
         },
-        page: {
-          pageNumber: 1,
-          pageSize: 25,
-        },
       },
       // 文件信息加载
       fileLoading: false,
       // 文件信息滚动查询加载
       fileScrollLoading: false,
-      // 文件分类信息加载
-      fileTypeLoading: false,
-      // 文件分类信息数据集合
-      fileTypeList: [],
       // 文件信息数据集合
       fileList: [],
-      // 文件信息数据分页
-      filePage: {},
       // 文件信息数据是否全部加载完毕
       isNfm: false,
       // 是否打开上传文件对话框
@@ -731,10 +599,6 @@ export default {
     },
     // 修改文件
     updateFile() {
-      if (this.updateFileInfo.fileInfo.ftiid == "") {
-        this.showMessage(false, "请选择分类名称");
-        return;
-      }
       if (this.updateFileInfo.fileInfo.info == "") {
         this.showMessage(false, "文件描述必须填写");
         return;
@@ -945,10 +809,6 @@ export default {
     },
     // 上传文件
     uploadFile() {
-      if (this.uploadFileInfo.fileInfo.ftiid == "") {
-        this.showMessage(false, "请选择分类名称");
-        return;
-      }
       if (this.uploadFileInfo.fileInfo.info == "") {
         this.showMessage(false, "文件描述必须填写");
         return;
@@ -986,26 +846,6 @@ export default {
       };
       this.queryFileInfo();
     },
-    // 分类信息选择器输入值变化时触发
-    queryRmFun(str) {
-      this.fileTypeLoading = true;
-      this.ajax(
-        "/karl-openapi/FileTypeInfo/QueryAll",
-        {
-          fileTypeInfo: {
-            name: str,
-          },
-          page: {
-            pageNumber: 1,
-            pageSize: 100,
-          },
-        },
-        (data) => {
-          this.fileTypeLoading = false;
-          this.fileTypeList = data.resultData.list;
-        }
-      );
-    },
     // 重置查询文件信息
     resetQueryFileInfo() {
       this.fileTypeList = [];
@@ -1025,131 +865,21 @@ export default {
     // 查询文件信息
     queryFileInfo() {
       this.fileLoading = true;
-      this.ajax(
-        "/karl-openapi/FileInfo/QueryAll",
-        this.fileQueryInfo,
-        (data) => {
+      getFiles()
+        .then(({ data }) => {
           setTimeout(() => {
             this.fileLoading = false;
             this.fileList = data.resultData.list;
             this.filePage = data.resultData.page;
           }, 800);
-        }
-      );
+        })
+        .catch((error) => {
+          // 错误处理
+          console.error("请求文件信息失败:", error);
+          this.fileLoading = false;
+        });
     },
-    // 删除分类信息
-    delType(obj) {
-      if (obj.ftiid == "") {
-        this.showMessage(false, "分类主键不能为空");
-        return;
-      }
-      this.delTypeLoading = true;
-      this.ajax(
-        "/karl-openapi/FileTypeInfo/Del",
-        {
-          fileTypeInfo: {
-            ftiid: obj.ftiid,
-          },
-        },
-        (data) => {
-          this.delTypeLoading = false;
-          this.showMessage(data.success, data.message);
-          this.queryTypeInfo();
-        }
-      );
-    },
-    // 修改分类信息
-    updateType() {
-      if (this.updateTypeInfo.ftiid == "") {
-        this.showMessage(false, "分类主键不能为空");
-        return;
-      }
-      if (this.updateTypeInfo.name == "") {
-        this.showMessage(false, "分类名称不能为空");
-        return;
-      }
-      this.updateTypeLoading = true;
-      this.ajax(
-        "/karl-openapi/FileTypeInfo/Update",
-        {
-          fileTypeInfo: {
-            ftiid: this.updateTypeInfo.ftiid,
-            name: this.updateTypeInfo.name,
-          },
-        },
-        (data) => {
-          this.updateTypeLoading = false;
-          this.showMessage(data.success, data.message);
-        }
-      );
-    },
-    // 关闭分类信息修改对话框
-    closeUpdateType() {
-      this.showTypeUpdateFrom = false;
-      this.updateTypeInfo = {};
-      this.queryTypeInfo();
-    },
-    // 打开分类信息修改对话框
-    openUpdateType(obj) {
-      this.updateTypeInfo = obj;
-      this.showTypeUpdateFrom = true;
-    },
-    // 添加分类信息
-    addType() {
-      if (this.addTypeInfo.name == "") {
-        this.showMessage(false, "分类名称必须填写");
-        return;
-      }
-      this.addTypeLoading = true;
-      this.ajax(
-        "/karl-openapi/FileTypeInfo/Add",
-        {
-          "fileTypeInfo.name": this.addTypeInfo.name,
-        },
-        (data) => {
-          this.addTypeLoading = false;
-          this.showMessage(data.success, data.message);
-          this.queryTypeInfo();
-        }
-      );
-    },
-    // 分类信息分页大小变化时触发
-    handleSizeChange(val) {
-      this.typeQueryInfo.page.pageSize = val;
-      this.queryTypeInfo();
-    },
-    // 分类信息页码变化时触发
-    handleCurrentChange(val) {
-      this.typeQueryInfo.page.pageNumber = val;
-      this.queryTypeInfo();
-    },
-    // 重置分类信息查询
-    resetQueryType() {
-      this.typeQueryInfo = {
-        fileTypeInfo: {
-          name: "",
-        },
-        page: {
-          pageNumber: 1,
-          pageSize: 10,
-        },
-      };
-      this.queryTypeInfo();
-    },
-    // 查询文件分类信息
-    queryTypeInfo() {
-      let app = this;
-      this.typeLoading = true;
-      this.ajax(
-        "/karl-openapi/FileTypeInfo/QueryAll",
-        this.typeQueryInfo,
-        (data) => {
-          app.typeLoading = false;
-          app.typeList = data.resultData.list;
-          app.typePage = data.resultData.page;
-        }
-      );
-    },
+
     // 标签页切换时触发的函数
     tabClick(tab) {
       switch (parseInt(tab.index)) {

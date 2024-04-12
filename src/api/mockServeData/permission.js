@@ -13,5 +13,21 @@ export default {
       }
       
     }
+  },
+
+  getFiles: () => {
+    return {
+      code: 20000,
+      resultData: {
+        list: [
+          { "id": 1, "name": "project1.txt", "type": "text" },
+          { "id": 2, "name": "Image.png", "type": "image" },
+          { "id": 3, "name": "a.mp4", "type": "audio" }
+        ]
+      }
+      
+    }
   }
+
+
 }
