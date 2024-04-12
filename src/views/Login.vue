@@ -14,7 +14,7 @@
   </el-form>
 </template>
 <script>
-import { getProjects } from "../api";
+import { getProjects, getFileTree} from "../api";
 import {mapMutations} from 'vuex'
 
 export default {
@@ -28,7 +28,7 @@ export default {
         this.fetchProjects();
   },
   methods: {
-    ...mapMutations(['setLogged']),
+    ...mapMutations(['setLogged', 'setFileTree']),
     fetchProjects() {
           getProjects().then(({ data }) => {
             console.log(data);
@@ -39,9 +39,17 @@ export default {
             }
           });
         },
-    // 使用 $router.push 方法来跳转路由
+    // 跳转到项目主页面
     goToProject(projectId) {
       this.setLogged(true);
+      getFileTree(projectId).then(({ data }) => {
+        console.log(data);
+        if (data.code === 20000) {
+          this.setFileTree(data.data);
+        } else {
+          this.$message.error(data.data.message);
+        }
+      });
       this.$router.push('/home');
     }
   },

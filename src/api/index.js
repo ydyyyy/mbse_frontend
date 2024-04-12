@@ -34,3 +34,7 @@ export const getProjects = () => {
 export const getFiles = () => {
   return http.get("/permission/getFiles");
 };
+
+export const getFileTree = (data) => {
+  return http.post("/permission/getFileTree", data);
+};

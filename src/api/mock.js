@@ -19,3 +19,4 @@ Mock.mock(/api\/permission\/getMenu/,'post',permission.getMenu)
 Mock.mock('/api/permission/getProjects', permission.getProjects)
 
 Mock.mock('/api/permission/getFiles', permission.getFiles)
+Mock.mock('/api/permission/getFileTree', 'post',permission.getFileTree)
