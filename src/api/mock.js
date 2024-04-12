@@ -20,3 +20,5 @@ Mock.mock('/api/permission/getProjects', permission.getProjects)
 
 Mock.mock('/api/permission/getFiles', permission.getFiles)
 Mock.mock('/api/permission/getFileTree', 'post',permission.getFileTree)
+Mock.mock('/api/permission/getFileById', 'post',permission.getFileById)
+Mock.mock('/api/permission/getTypeFiles', 'post',permission.getTypeFiles)

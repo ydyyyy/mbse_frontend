@@ -2,8 +2,9 @@ import axios from "axios";
 
 const http = axios.create({
   // 通用请求的地址前缀
-  baseURL: "/api",
+  baseURL: "http://172.20.10.4:8080",
   timeout: 10000, // 超时时间
+  changeOrigin: true, // 是否跨域
 });
 
 // 添加请求拦截器

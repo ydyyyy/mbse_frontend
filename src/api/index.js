@@ -28,7 +28,7 @@ export const getMenu = (data) => {
 };
 
 export const getProjects = () => {
-  return http.get("/permission/getProjects");
+  return http.get("/projects");
 };
 
 export const getFiles = () => {
@@ -38,3 +38,13 @@ export const getFiles = () => {
 export const getFileTree = (data) => {
   return http.post("/permission/getFileTree", data);
 };
+
+export const getFileById = (data) => {
+  return http.post("/permission/getFileById", data);
+}
+
+
+export const getTypeFiles = (data) => {
+  console.log("发了");
+  return http.post("/permission/getTypeFiles", data);
+}

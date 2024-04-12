@@ -67,6 +67,7 @@
               ></select>
               <select class="ql-align" value="align" title="对齐"></select>
               <button class="ql-clean" title="还原"></button>
+              <el-button class="el-icon-document-checked" style="margin-left: 50px;  font-weight: bold;" @click="updateFile">保存</el-button>
               <!-- You can also add your own -->
             </div>
           </quill-editor>
@@ -76,7 +77,7 @@
   </el-row>
 </template>
 <script>
-import { getData } from "../api";
+import { getFileById } from "../api";
 import {
     Quill,
     quillEditor
@@ -86,6 +87,8 @@ import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 //引入font.css 
 import '../assets/css/font.css'
+
+getFileById
 // 自定义字体大小
 let Size = Quill.import('attributors/style/size')
   Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px']
@@ -99,6 +102,9 @@ let Size = Quill.import('attributors/style/size')
   Font.whitelist = fonts
   Quill.register(Font, true)
 
+import {mapMutations} from 'vuex'
+import { set } from 'vue';
+
 export default {
   components: {
     quillEditor,
@@ -107,7 +113,7 @@ export default {
     return {
       defaultProps: {
         children: "children",
-        label: "label",
+        label: "name",
       },
       content: null,
       editorOption: {
@@ -121,8 +127,32 @@ export default {
         }
     };
   },
-  mounted() {},
-  methods: {},
+  methods: {
+    ...mapMutations(['setFileInfo']),
+    handleNodeClick(node) {
+    if (node.isRoot && !node.clicked) { // 节点对象有一个 `isRoot` 属性来标识是否为根节点
+      // 发送请求获取数据
+      node.clicked = true;
+      console.log("根节点")
+      this.fetchNodeFiles(node.id);
+    }
+  },
+  fetchNodeFiles(nodeId) {
+      getFileById(nodeId).then(({ data }) => {
+        console.log(data);
+        if (data.code === 20000) {
+          this.content = data.data.content;
+          this.setFileInfo(data.data);
+        } else {
+          this.$message.error(data.data.message);
+        }
+      })
+    },
+    updateFile() {
+      console.log(this.content)
+      this.$store.state.tab.fileInfo.content = this.content;
+    }
+  },
   computed: {
   fileTreeData() {
     return this.$store.state.tab.fileTree;
