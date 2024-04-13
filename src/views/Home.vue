@@ -67,7 +67,12 @@
               ></select>
               <select class="ql-align" value="align" title="对齐"></select>
               <button class="ql-clean" title="还原"></button>
-              <el-button class="el-icon-document-checked" style="margin-left: 50px;  font-weight: bold;" @click="updateFile">保存</el-button>
+              <el-button
+                class="el-icon-document-checked"
+                style="margin-left: 50px; font-weight: bold"
+                @click="updateFile"
+                >保存</el-button
+              >
               <!-- You can also add your own -->
             </div>
           </quill-editor>
@@ -77,33 +82,38 @@
   </el-row>
 </template>
 <script>
-import { getFileById } from "../api";
-import {
-    Quill,
-    quillEditor
-  } from 'vue-quill-editor'
+import { getFileById, updateFileById  } from "../api";
+import { Quill, quillEditor } from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
-//引入font.css 
-import '../assets/css/font.css'
-
+//引入font.css
+import "../assets/css/font.css";
 
 // 自定义字体大小
-let Size = Quill.import('attributors/style/size')
-  Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px']
-  Quill.register(Size, true)
+let Size = Quill.import("attributors/style/size");
+Size.whitelist = ["10px", "12px", "14px", "16px", "18px", "20px"];
+Quill.register(Size, true);
 
-  // 自定义字体类型
-  var fonts = ['SimSun', 'SimHei', 'Microsoft-YaHei', 'KaiTi', 'FangSong', 'Arial', 'Times-New-Roman', 'sans-serif',
-    '宋体', '黑体'
-  ]
-  var Font = Quill.import('formats/font')
-  Font.whitelist = fonts
-  Quill.register(Font, true)
+// 自定义字体类型
+var fonts = [
+  "SimSun",
+  "SimHei",
+  "Microsoft-YaHei",
+  "KaiTi",
+  "FangSong",
+  "Arial",
+  "Times-New-Roman",
+  "sans-serif",
+  "宋体",
+  "黑体",
+];
+var Font = Quill.import("formats/font");
+Font.whitelist = fonts;
+Quill.register(Font, true);
 
-import {mapMutations} from 'vuex'
-import { set } from 'vue';
+import { mapMutations} from "vuex";
+import { set } from "vue";
 
 export default {
   components: {
@@ -117,27 +127,26 @@ export default {
       },
       content: null,
       editorOption: {
-          placeholder: "请输入",
-          theme: "snow", // or 'bubble' 
-          modules: {
-            toolbar: {
-              container: '#toolbar'
-            }
-          }
-        }
+        placeholder: "请输入",
+        theme: "snow", // or 'bubble'
+        modules: {
+          toolbar: {
+            container: "#toolbar",
+          },
+        },
+      },
     };
   },
   methods: {
-    ...mapMutations(['setFileInfo']),
+    ...mapMutations(["setFileInfo"]),
     handleNodeClick(node) {
-    if (node.isRoot && !node.clicked) { // 节点对象有一个 `isRoot` 属性来标识是否为根节点
-      // 发送请求获取数据
-      node.clicked = true;
-      console.log("根节点")
-      this.fetchNodeFiles(node.id);
-    }
-  },
-  fetchNodeFiles(nodeId) {
+      if (node.file) {
+        // 节点对象有一个 `file` 属性来标识是否为叶节点
+        this.content = node.content;
+        this.setFileInfo(node);
+      }
+    },
+    fetchNodeFiles(nodeId) {
       getFileById(nodeId).then(({ data }) => {
         console.log(data);
         if (data.code === 20000) {
@@ -146,18 +155,50 @@ export default {
         } else {
           this.$message.error(data.data.message);
         }
-      })
+      });
     },
+    // 根据id查找结点 父函数
+    travelsalTree(node,nodeId) {
+      for(let i = 0; i < node.length; i++) {
+        let result = this.findNodeById(node[i], nodeId);
+        if(result != null) {
+          return result;
+        }
+      }
+    },
+
+    // 根据id查找节点 子函数
+    findNodeById(node, id) {
+      // 检查当前节点的id是否匹配
+      if (node.id === id) {
+        return node;
+      }
+      // 如果当前节点有子节点，遍历子节点
+      if (node.children) {
+        for (let child of node.children) {
+          let result = this.findNodeById(child, id);
+          if (result) {
+            return result;
+          }
+        }
+      }
+      // 如果没有找到匹配的节点，返回null
+      return null;
+    },
+
     updateFile() {
-      console.log(this.content)
-      this.$store.state.tab.fileInfo.content = this.content;
-    }
+      this.travelsalTree( this.$store.state.tab.fileTree, this.$store.state.tab.fileInfo.id).content = this.content;
+      updateFileById(this.$store.state.tab.fileInfo.id,this.content).then(({ data }) => {  
+        if(data.code === 20000)
+        this.$message.success("保存成功");
+      });
+    },
   },
   computed: {
-  fileTreeData() {
-    return this.$store.state.tab.fileTree;
-  }
- },
+    fileTreeData() {
+      return this.$store.state.tab.fileTree;
+    },
+  },
 };
 </script>
 <style lang="less" scoped>

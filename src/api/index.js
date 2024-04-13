@@ -45,11 +45,16 @@ export const getFileById = (data) => {
 
 
 export const getTypeFiles = (data) => {
-  console.log("发了");
   return http.post("/permission/getTypeFiles", data);
 }
 
 
 export const sendToServer = (val1,val2) => {
-  return http.post("/permission/sendToServer", val1,val2);
+  console.log(val1,val2);
+  return http.post("/permission/sendToServer", { val1, val2 });
+}
+
+
+export const updateFileById = (val1,val2) => {
+  return http.post("/permission/updateFileById", { val1, val2 });
 }

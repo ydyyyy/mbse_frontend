@@ -275,6 +275,7 @@ import qs from "qs";
 // js-base64
 import { Base64 } from "js-base64";
 import { getTypeFiles, sendToServer } from "../api";
+import { MessageBox } from "element-ui";
 
 export default {
   name: "FilesIndex",
@@ -629,8 +630,21 @@ export default {
       )
         .then((contents) => {
           console.log("文件内容已读取，发送到服务器：", contents);
-          sendToServer(contents[1], contents[2]).then((data) => {
-            console.log("需求链接信息：", data);
+          sendToServer(contents[1], contents[2]).then(({ data }) => {
+            if (data.data == true) {
+              MessageBox.alert("两个文件存在需求关联", "成功", {
+                confirmButtonText: "确定",
+                type: "success",
+                center: true,
+              });
+            }
+            else {
+              MessageBox.alert("两个文件不存在需求关联", "失败", {
+                confirmButtonText: "确定",
+                type: "error",
+                center: true,
+              });
+            }
           });
         })
         .catch((error) => {
@@ -1175,4 +1189,25 @@ export default {
   margin-left: 300px;
   margin-top: 100px;
 }
+/* 自定义MessageBox样式 */
+.el-message-box__header {
+  color: #333; /* 标题颜色 */
+  font-weight: bold; /* 标题字体加粗 */
+}
+
+.el-message-box__content {
+  font-size: 16px; /* 内容字体大小 */
+  color: #666; /* 内容字体颜色 */
+}
+
+.el-button--default {
+  border-color: #3399ff; /* 按钮边框颜色 */
+  color: #3399ff; /* 按钮文字颜色 */
+}
+
+.el-button--primary {
+  background-color: #3399ff; /* 主按钮背景颜色 */
+  border-color: #3399ff; /* 主按钮边框颜色 */
+}
+
 </style>

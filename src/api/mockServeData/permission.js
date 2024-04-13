@@ -35,69 +35,78 @@ export default {
         code: 20000,
         data: [
           {
-            label: "一级 1",
+            name: "一级 1",
             id: 1,
             children: [
               {
-                label: "二级 1-1",
+                name: "二级 1-1",
                 id: 2,
                 children: [
                   {
-                    label: "三级 1-1-1",
+                    name: "三级 1-1-1",
                     id: 3,
-                    isRoot: true,
+                    file: true,
+                    content:"Life is hard."
                   },
                 ],
               },
             ],
           },
           {
-            label: "一级 2",
+            name: "一级 2",
             id: 4,
             children: [
               {
-                label: "二级 2-1",
+                name: "二级 2-1",
                 id: 5,
                 children: [
                   {
-                    label: "三级 2-1-1",
+                    name: "三级 2-1-1",
                     id: 6,
+                    file: true,
+                    content:"I love you"
                   },
                 ],
               },
               {
-                label: "二级 2-2",
+                name: "二级 2-2",
                 id: 7,
                 children: [
                   {
-                    label: "三级 2-2-1",
+                    name: "三级 2-2-1",
                     id: 8,
+                    file: true,
+                    content:"You hate me"
                   },
                 ],
               },
             ],
           },
           {
-            label: "一级 3",
+            name: "一级 3",
             id: 9,
             children: [
               {
-                label: "二级 3-1",
+                name: "二级 3-1",
                 id: 10,
                 children: [
                   {
-                    label: "三级 3-1-1",
+                    name: "三级 3-1-1",
                     id: 11,
+                    file: true,
+                    content:"We are the best."
                   },
                 ],
               },
               {
-                label: "二级 3-2",
+                name: "二级 3-2",
                 id: 12,
                 children: [
                   {
-                    label: "三级 3-2-1",
+                    name: "三级 3-2-1",
                     id: 13,
+                    file: true,
+                    content:"Let's go."
                   },
                 ],
               },
@@ -138,7 +147,7 @@ export default {
                 projectId: 1,
                 parentId: null,
                 children: [],
-                file: false,
+                file: true,
               },
               {
                 id: 7,
@@ -150,7 +159,7 @@ export default {
                 projectId: 1,
                 parentId: null,
                 children: [],
-                file: false,
+                file: true,
               },
             ],
             file: false,
@@ -174,7 +183,7 @@ export default {
                 projectId: 1,
                 parentId: null,
                 children: [],
-                file: false,
+                file: true,
               },
               {
                 id: 6,
@@ -185,7 +194,7 @@ export default {
                 projectId: 1,
                 parentId: null,
                 children: [],
-                file: false,
+                file: true,
               },
               {
                 id: 5,
@@ -196,7 +205,7 @@ export default {
                 projectId: 1,
                 parentId: null,
                 children: [],
-                file: false,
+                file: true,
               },
             ],
             file: false,
@@ -250,6 +259,20 @@ export default {
   },
 
   sendToServer: (config) => {
-    console.log(config.body);
+    const data = JSON.parse(config.body);
+    console.log("1",data.val1,data.val2);
+    return {
+      code: 20000,
+      data: true,
+    };
+  },
+
+  updateFileById: (config) => {
+    const data = JSON.parse(config.body);
+    console.log("2",data.val1,data.val2);
+    return {
+      code: 20000,
+      data: true,
+    };
   }
 };

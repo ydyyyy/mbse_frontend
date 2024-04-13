@@ -18,6 +18,7 @@ export default {
     },
     setFileInfo(state, val) {
       state.fileInfo = val;
+      console.log("改文件信息", val);
     },
   },
 };
