@@ -24,7 +24,7 @@
               <div>
                 <el-input
 
-                  v-model="typeQueryInfo.fileTypeInfo.content"
+                  v-model="typeQueryInfo.content"
                   placeholder="全局搜索"
 
                   prefix-icon="el-icon-search"
@@ -290,12 +290,7 @@ export default {
       // ======== 分类信息部分 ========
       // 分类信息查询条件
       typeQueryInfo: {
-
-
-        
           content: "",
-        
-
       },
       // 分类信息查询加载
       typeLoading: false,
@@ -803,13 +798,7 @@ export default {
     // 重置分类信息查询
     resetQueryType() {
       this.typeQueryInfo = {
-        fileTypeInfo: {
-          name: "",
-        },
-        page: {
-          pageNumber: 1,
-          pageSize: 10,
-        },
+          content: "",
       };
       this.queryTypeInfo();
     },

@@ -23,6 +23,7 @@ export const getTypeFiles = (data) => {
 
 
 export const sendToServer = (id,content) => {
+  console.log("676767676")
   return http.post("/permission/sendToServer", { id, content });
 }
 

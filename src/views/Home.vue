@@ -19,7 +19,7 @@
  
           <div v-else>
             <i class="leaf-node-line"></i>
-            <i class="el-icon-folder" :style="'padding: 0 5px 0 5px'"></i> 
+            <i class="el-icon-document" :style="'padding: 0 5px 0 5px'"></i> 
             <span>{{ data.name }}</span>
           </div>
         </template>
