@@ -233,6 +233,7 @@ export default {
   },
 
   getTypeFiles: (config) => {
+    console.log(config.body);
     const val = JSON.parse(config.body);
     if (val.fileTypeInfo.name == 1)
       return {
@@ -268,8 +269,9 @@ export default {
   },
 
   updateFileById: (config) => {
-    const data = JSON.parse(config.body);
-    console.log("2",data.val1,data.val2);
+    console.log(config.body);
+    //const data = JSON.parse(config.body);
+    //console.log("2",data.val1,data.val2);
     return {
       code: 20000,
       data: true,

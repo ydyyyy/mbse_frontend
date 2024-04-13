@@ -4,6 +4,7 @@ export default {
     logged: false, // 是否登录
     fileTree: [], // 文件树
     fileInfo: {}, // 当前展示的文件信息
+    project: {}, // 当前项目
   },
   mutations: {
     // 修改登录状态
@@ -20,5 +21,8 @@ export default {
       state.fileInfo = val;
       console.log("改文件信息", val);
     },
+    setCurrentProject(state, val) {
+      state.project = val;
+    }
   },
 };

@@ -2,15 +2,16 @@
   <div class="header-container">
     
     <div class="l-content">
-      <el-dropdown @command="handleClick">
+      <el-dropdown>
         <span class="el-dropdown-link">
-          <img class="user" src="../assets/logo.png" />
+          <img class="user" src="../assets/model.png" />
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>个人中心</el-dropdown-item>
           <el-dropdown-item command="cancel">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <p class="project-title">{{ this.$store.state.tab.project.name }}</p>
     </div>
 
     <div class="r-content">
@@ -69,5 +70,12 @@ export default {
       }
     }
   }
+}
+.project-title {
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    margin-left: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* 添加文字阴影增强对比 */
 }
 </style>

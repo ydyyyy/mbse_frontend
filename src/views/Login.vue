@@ -7,7 +7,7 @@
     <h3 class="login_title">Project List</h3>
     <ul class="project-list">
     <li v-for="project in projects" :key="project.id" class="project-item">
-      <el-link class="project-link"  type="primary"  @click="goToProject(project.id)">{{ project.name }}</el-link>
+      <el-link class="project-link"  type="primary"  @click="goToProject(project)">{{ project.name }}</el-link>
     </li>
   </ul>
   
@@ -28,7 +28,7 @@ export default {
         this.fetchProjects();
   },
   methods: {
-    ...mapMutations(['setLogged', 'setFileTree']),
+    ...mapMutations(['setLogged', 'setFileTree' , 'setCurrentProject']),
     fetchProjects() {
           getProjects().then(({ data }) => {
             console.log(data);
@@ -40,9 +40,10 @@ export default {
           });
         },
     // 跳转到项目主页面
-    goToProject(projectId) {
+    goToProject(project) {
       this.setLogged(true);
-      getFileTree(projectId).then(({ data }) => {
+      this.setCurrentProject(project);
+      getFileTree(project.id).then(({ data }) => {
         console.log(data);
         if (data.code === 20000) {
           this.setFileTree(data.data);

@@ -1,12 +1,39 @@
 <template>
   <el-row>
-    <el-col :span="6"
-      ><div class="grid-content bg-purple">
+    <el-col :span="6">
+      <div class="tree-container">
         <el-tree
           :data="fileTreeData"
           :props="defaultProps"
           @node-click="handleNodeClick"
-        ></el-tree>
+          ref="treeRef"
+          icon-class="el-icon-arrow-right"
+          :node-key="'id'"
+        >
+        <span slot-scope="{ data }">
+        <template v-if="data.children">
+          <div v-if="data.children.length > 0">
+            <i class="el-icon-folder-opened" :style="'font-size: 14px; padding: 0 5px 0 5px'" ></i>
+            <span>{{ data.name }}</span>
+          </div>
+ 
+          <div v-else>
+            <i class="leaf-node-line"></i>
+            <i class="el-icon-folder" :style="'padding: 0 5px 0 5px'"></i> 
+            <span>{{ data.name }}</span>
+          </div>
+        </template>
+ 
+        <template v-else>
+          <div style="margin-left: 0px;">
+            <i class="leaf-node-line"></i>
+            <i class="el-icon-document" :style="'padding: 0 5px 0 5px'"></i>
+            <span>{{ data.name }}</span>
+          </div>
+        </template>
+      </span>
+  
+        </el-tree>
       </div>
     </el-col>
     <el-col :span="18">
@@ -82,7 +109,7 @@
   </el-row>
 </template>
 <script>
-import { getFileById, updateFileById  } from "../api";
+import { getFileById, updateFileById } from "../api";
 import { Quill, quillEditor } from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
@@ -112,7 +139,7 @@ var Font = Quill.import("formats/font");
 Font.whitelist = fonts;
 Quill.register(Font, true);
 
-import { mapMutations} from "vuex";
+import { mapMutations } from "vuex";
 import { set } from "vue";
 
 export default {
@@ -121,9 +148,10 @@ export default {
   },
   data() {
     return {
+      isSelectAll: false,
       defaultProps: {
+        name: "name",
         children: "children",
-        label: "name",
       },
       content: null,
       editorOption: {
@@ -158,10 +186,10 @@ export default {
       });
     },
     // 根据id查找结点 父函数
-    travelsalTree(node,nodeId) {
-      for(let i = 0; i < node.length; i++) {
+    travelsalTree(node, nodeId) {
+      for (let i = 0; i < node.length; i++) {
         let result = this.findNodeById(node[i], nodeId);
-        if(result != null) {
+        if (result != null) {
           return result;
         }
       }
@@ -187,12 +215,42 @@ export default {
     },
 
     updateFile() {
-      this.travelsalTree( this.$store.state.tab.fileTree, this.$store.state.tab.fileInfo.id).content = this.content;
-      updateFileById(this.$store.state.tab.fileInfo.id,this.content).then(({ data }) => {  
-        if(data.code === 20000)
-        this.$message.success("保存成功");
-      });
+      this.travelsalTree(
+        this.$store.state.tab.fileTree,
+        this.$store.state.tab.fileInfo.id
+      ).content = this.content;
+      updateFileById(this.$store.state.tab.fileInfo.id, this.content).then(
+        ({ data }) => {
+          if (data.code === 20000) this.$message.success("保存成功");
+        }
+      );
     },
+
+    /**
+     * 是否全选所有节点
+     */
+     handleCheckedAllTreeNodeChange() {
+      if (this.isSelectAll) {
+        // 深度遍历将子节点全选中
+        for (let i = 0; i < this.treeList.length; i++) {
+          this.$refs.treeRef.setChecked(this.treeList[i], true, true);
+        }
+      } else {
+        // 全部不选中
+        this.$refs.treeRef.setCheckedNodes([]);
+      }
+ 
+      const leafOnly = true;
+      this.handleGetCheckedNodesAndKeys(leafOnly);
+    },
+ 
+    /**
+     * 获取当前已被选中的节点集合
+     */
+    handleGetCheckedNodesAndKeys(leafOnly) {
+      console.log('getCheckedNodes =>', this.$refs.treeRef.getCheckedNodes(leafOnly));
+      console.log('getCheckedKeys =>', this.$refs.treeRef.getCheckedKeys(leafOnly));
+    }
   },
   computed: {
     fileTreeData() {
@@ -278,5 +336,104 @@ export default {
   .el-card {
     width: 48%;
   }
+}
+</style>
+
+<style lang="less" scoped>
+// 设置树形组件节点的定位和左内边距
+.tree-container /deep/ .el-tree-node {
+  position: relative;
+  padding-left: 13px;
+}
+
+// 设置树形组件节点的 before 伪类的样式
+.tree-container /deep/ .el-tree-node:before {
+  width: 1px;
+  height: 100%;
+  content: "";
+  position: absolute;
+  top: -38px;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  border-width: 1px;
+  border-left: 1px solid #b8b9bb;
+}
+
+// 设置树形组件节点的 after 伪类的样式
+.tree-container /deep/ .el-tree-node:after {
+  width: 13px;
+  height: 13px;
+  content: "";
+  position: absolute;
+  left: 0;
+  right: auto;
+  top: 12px;
+  bottom: auto;
+  border-width: 1px;
+  border-top: 1px solid #b8b9bb;
+}
+
+// 设置树形组件首节点的左边框不显示
+.tree-container /deep/ .el-tree > .el-tree-node:before {
+  border-left: none;
+}
+
+// 设置树形组件首节点的顶部边框不显示
+.tree-container /deep/ .el-tree > .el-tree-node:after {
+  border-top: none;
+}
+
+// 设置树形组件末节点的 before 伪类的高度
+.tree-container /deep/ .el-tree .el-tree-node:last-child:before {
+  height: 50px;
+}
+
+// 设置树形组件节点字体大小、以及取消左内边距
+.tree-container /deep/ .el-tree .el-tree-node__content {
+  color: #000;
+  font-size: 14px;
+  padding-left: 0 !important;
+}
+
+// 设置树形组件孩子节点左内边距
+.tree-container /deep/ .el-tree .el-tree-node__children {
+  padding-left: 11.5px;
+}
+
+// 设置树形组件复选框左右外边距
+.tree-container /deep/ .el-tree .el-tree-node__content > name.el-checkbox {
+  margin: 0 5px 0 5px !important;
+}
+
+// 设置树形组件展开图标定位、图层、内边距
+.tree-container /deep/ .el-tree .el-tree-node__expand-icon {
+  position: relative;
+  z-index: 99;
+}
+
+// 设置树形组件叶子节点的默认图标不显示
+.tree-container /deep/ .el-tree .el-tree-node__expand-icon.is-leaf {
+  display: none;
+}
+
+// 设置树形组件叶子节点的横线
+.tree-container /deep/ .el-tree .leaf-node-line {
+  width: 23px;
+  height: 13px;
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: auto;
+  top: 12px;
+  bottom: auto;
+  border-width: 1px;
+  border-top: 1px solid #b8b9bb;
+}
+
+// 设置树形组件有叶子节点的左外边距
+.tree-container /deep/ .el-tree .el-tree-node__content:has(.is-leaf) {
+  // color: aqua;
+  margin-left: 24px !important;
 }
 </style>

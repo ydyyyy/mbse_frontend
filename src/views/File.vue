@@ -23,8 +23,8 @@
             <div class="typeDos">
               <div>
                 <el-input
-                  v-model="typeQueryInfo.fileTypeInfo.name"
-                  placeholder="分类名称"
+                  v-model="typeQueryInfo.fileTypeInfo.content"
+                  placeholder="全局搜索"
                   prefix-icon="el-icon-search"
                   size="medium"
                   clearable
@@ -289,11 +289,7 @@ export default {
       // 分类信息查询条件
       typeQueryInfo: {
         fileTypeInfo: {
-          name: "",
-        },
-        page: {
-          pageNumber: 1,
-          pageSize: 10,
+          content: "",
         },
       },
       // 分类信息查询加载
@@ -816,11 +812,6 @@ export default {
     queryTypeInfo() {
       let app = this;
       this.typeLoading = true;
-      // this.ajax('/karl-openapi/FileTypeInfo/QueryAll', this.typeQueryInfo, (data) => {
-      //     app.typeLoading = false;
-      //     app.typeList = data.resultData.list;
-      //     app.typePage = data.resultData.page;
-      // });
       getTypeFiles(this.typeQueryInfo).then(({ data }) => {
         console.log(data);
         app.typeLoading = false;
