@@ -23,8 +23,10 @@
             <div class="typeDos">
               <div>
                 <el-input
+
                   v-model="typeQueryInfo.fileTypeInfo.content"
                   placeholder="全局搜索"
+
                   prefix-icon="el-icon-search"
                   size="medium"
                   clearable
@@ -97,7 +99,7 @@
                 <el-table-column
                   label="主键"
                   align="center"
-                  prop="ftiid"
+                  prop="id"
                 ></el-table-column>
                 <el-table-column
                   label="分类名称"
@@ -106,7 +108,7 @@
                 ></el-table-column>
                 <el-table-column label="创建时间" align="center">
                   <template slot-scope="scope">
-                    {{ formatDate(scope.row.create_time) }}
+                    {{ formatDate(scope.row.uploadTime) }}
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
@@ -274,7 +276,7 @@ import axios from "axios";
 import qs from "qs";
 // js-base64
 import { Base64 } from "js-base64";
-import { getTypeFiles, sendToServer } from "../api";
+import { getTypeFiles, sendToServer ,getSpecialFiles} from "../api";
 import { MessageBox } from "element-ui";
 
 export default {
@@ -288,9 +290,12 @@ export default {
       // ======== 分类信息部分 ========
       // 分类信息查询条件
       typeQueryInfo: {
-        fileTypeInfo: {
+
+
+        
           content: "",
-        },
+        
+
       },
       // 分类信息查询加载
       typeLoading: false,
@@ -812,11 +817,21 @@ export default {
     queryTypeInfo() {
       let app = this;
       this.typeLoading = true;
-      getTypeFiles(this.typeQueryInfo).then(({ data }) => {
+
+      if(this.typeQueryInfo.content == ""){
+        getTypeFiles(this.typeQueryInfo.content).then(({ data }) => {
+
         console.log(data);
         app.typeLoading = false;
-        app.typeList = data.resultData.list;
-      });
+          app.typeList = data;
+        });
+      }else{
+        getSpecialFiles(this.typeQueryInfo.content).then(({ data }) => {
+          console.log(data);
+          app.typeLoading = false;
+          app.typeList = data;
+        });
+      }
     },
     // 标签页切换时触发的函数
     tabClick(tab) {
