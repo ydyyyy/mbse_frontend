@@ -48,7 +48,7 @@ export const getTypeFiles = (data) => {
   console.log("发了");
   return http.post("/permission/getTypeFiles", data);
 }
-sendToServer
+
 
 export const sendToServer = (val1,val2) => {
   return http.post("/permission/sendToServer", val1,val2);

@@ -1,5 +1,5 @@
 import Mock from "mockjs";
-import { getFileTree } from "..";
+import { getFileTree, sendToServer } from "..";
 
 export default {
   getProjects: () => {
@@ -248,4 +248,8 @@ export default {
         },
       };
   },
+
+  sendToServer: (config) => {
+    console.log(config.body);
+  }
 };
