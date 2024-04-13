@@ -189,7 +189,7 @@ export default {
     updateFile() {
       this.travelsalTree( this.$store.state.tab.fileTree, this.$store.state.tab.fileInfo.id).content = this.content;
       updateFileById(this.$store.state.tab.fileInfo.id,this.content).then(({ data }) => {  
-        if(data.code === 20000)
+      
         this.$message.success("保存成功");
       });
     },

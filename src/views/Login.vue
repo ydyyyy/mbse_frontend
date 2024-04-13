@@ -32,11 +32,9 @@ export default {
     fetchProjects() {
           getProjects().then(({ data }) => {
             console.log(data);
-            if (data.code === 20000) {
-              this.projects = data.data.projects;
-            } else {
-              this.$message.error(data.data.message);
-            }
+       
+              this.projects = data;
+            
           });
         },
     // 跳转到项目主页面
@@ -44,11 +42,9 @@ export default {
       this.setLogged(true);
       getFileTree(projectId).then(({ data }) => {
         console.log(data);
-        if (data.code === 20000) {
-          this.setFileTree(data.data);
-        } else {
-          this.$message.error(data.data.message);
-        }
+
+          this.setFileTree(data);
+
       });
       this.$router.push('/home');
     }
