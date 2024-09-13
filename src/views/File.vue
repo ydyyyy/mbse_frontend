@@ -14,9 +14,7 @@
       <el-tabs tab-position="left" @tab-click="tabClick">
         <!-- 文件分类信息 -->
         <el-tab-pane>
-          <span slot="label"
-            ><i class="el-icon-folder-opened"></i> 文件分类信息</span
-          >
+          <span slot="label"><i class="el-icon-folder"></i> 文件分类信息</span>
           <!-- 分类信息主体部分 -->
           <div>
             <!-- 顶部功能操作区 -->
@@ -48,43 +46,6 @@
                   >重置</el-button
                 >
               </div>
-              <div>
-                <el-button
-                  type="success"
-                  icon="el-icon-plus"
-                  size="medium"
-                  @click="showTypeAddFrom = !showTypeAddFrom"
-                  >添加</el-button
-                >
-              </div>
-            </div>
-            <!-- 添加分类信息的表单 -->
-            <div>
-              <transition name="el-zoom-in-top">
-                <div class="addTypeForms" v-show="showTypeAddFrom">
-                  <div>添加分类信息：</div>
-                  <div>
-                    <el-input
-                      v-model="addTypeInfo.name"
-                      placeholder="请输入分类名称"
-                      prefix-icon="el-icon-search"
-                      size="medium"
-                      clearable
-                    ></el-input>
-                  </div>
-                  <div>
-                    <el-button
-                      type="primary"
-                      size="medium"
-                      icon="el-icon-check"
-                      :loading="addTypeLoading"
-                      @click="addType"
-                    >
-                      提交
-                    </el-button>
-                  </div>
-                </div>
-              </transition>
             </div>
             <!-- 数据展示部分 -->
             <div class="typeTables">
@@ -92,7 +53,7 @@
               <el-table
                 :data="typeList"
                 v-loading="typeLoading"
-                element-loading-text="拼命加载中..."
+                element-loading-text="加载中..."
               >
                 <el-table-column
                   label="主键"
@@ -141,8 +102,6 @@
               <!-- 数据分页 -->
               <div class="typePages">
                 <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
                   :current-page="typePage.pageNumber"
                   :page-sizes="[10, 20, 30, 40]"
                   :total="typePage.pageTotal"
@@ -156,7 +115,7 @@
 
         <!-- 文件信息 -->
         <el-tab-pane>
-          <span slot="label"><i class="el-icon-folder"></i>需求链接</span>
+          <span slot="label"><i class="el-icon-folder"></i> 需求链接</span>
           <!-- 文件信息上传对话框 -->
           <div class="center-container">
             <!-- 上传表单 -->
@@ -216,13 +175,19 @@
             </el-form>
           </div>
         </el-tab-pane>
+
+        <!-- 链接分析部分 -->
+        <el-tab-pane>
+          <span slot="label"><i class="el-icon-folder"></i> 链接分析</span>
+          <demand-pic />
+        </el-tab-pane>
       </el-tabs>
     </div>
 
     <!-- 文件分类信息修改对话框 -->
     <div>
       <el-dialog
-        title="修改分类信息"
+        title="修改文件信息"
         center
         :visible.sync="showTypeUpdateFrom"
         :close-on-press-escape="false"
@@ -231,10 +196,10 @@
       >
         <!-- 操作表单 -->
         <el-form>
-          <el-form-item label="分类名称：">
+          <el-form-item label="文件名称：">
             <el-input
               v-model="updateTypeInfo.name"
-              placeholder="请输入分类名称"
+              placeholder="请输入修改后文件名称"
               clearable
             ></el-input>
           </el-form-item>
@@ -276,11 +241,17 @@ import qs from "qs";
 import { Base64 } from "js-base64";
 import { getTypeFiles, sendToServer } from "../api";
 import { MessageBox } from "element-ui";
+import { Loading } from "element-ui";
+import CardDemand from "@/components/CardDemand.vue";
+import { jsPlumb } from 'jsplumb';
+import DemandPic from "@/components/DemandPic.vue";
 
 export default {
+  components: { CardDemand , DemandPic },
   name: "FilesIndex",
   data() {
     return {
+      files: [], // 用于存储选择的文件信息
       // 页面标题
       title: "文件管理",
       // 接口服务地址
@@ -300,10 +271,6 @@ export default {
       typePage: {},
       // 是否打开分类信息添加对话框
       showTypeAddFrom: false,
-      // 分类信息添加信息对象
-      addTypeInfo: {
-        name: "",
-      },
       // 分类信息添加加载
       addTypeLoading: false,
       // 是否打开分类信息修改对话框
@@ -385,11 +352,7 @@ export default {
     };
   },
   methods: {
-    // 修改文件表单选择文件组件触发的函数
-    chooseUpdateFile(file) {
-      this.updateFileInfo.file = file;
-      return false;
-    },
+    testDemandLink() {},
     // 修改文件
     updateFile() {
       if (this.updateFileInfo.fileInfo.ftiid == "") {
@@ -607,6 +570,7 @@ export default {
     // 上传文件
     uploadFile() {
       const files = this.uploadFileInfo;
+      let loadingInstance = null;
       if (files.length != 3) {
         this.showMessage(false, "请选择两个文件");
         return;
@@ -623,29 +587,40 @@ export default {
               reader.onload = () => resolve(reader.result);
             })
         )
-      )
-        .then((contents) => {
-          console.log("文件内容已读取，发送到服务器：", contents);
-          sendToServer(contents[1], contents[2]).then(({ data }) => {
+      ).then((contents) => {
+        console.log("文件内容已读取，发送到服务器：", contents);
+        loadingInstance = Loading.service({
+          fullscreen: true,
+          text: "加载中...",
+          background: "rgba(0, 0, 0, 0.7)",
+        });
+
+        sendToServer(contents[1], contents[2])
+          .then(({ data }) => {
             if (data.data == true) {
               MessageBox.alert("两个文件存在需求关联", "成功", {
                 confirmButtonText: "确定",
                 type: "success",
                 center: true,
               });
-            }
-            else {
+            } else {
               MessageBox.alert("两个文件不存在需求关联", "失败", {
                 confirmButtonText: "确定",
                 type: "error",
                 center: true,
               });
             }
+          })
+          .catch((error) => {
+            console.error("读取文件发生错误:", error);
+          })
+          .finally(() => {
+            if (loadingInstance) {
+              // 请求完成后关闭加载动画
+              loadingInstance.close();
+            }
           });
-        })
-        .catch((error) => {
-          console.error("读取文件发生错误:", error);
-        });
+      });
     },
     // 文件上传选择文件组件触发的函数
     chooseUploadFile(file) {
@@ -765,35 +740,6 @@ export default {
     openUpdateType(obj) {
       this.updateTypeInfo = obj;
       this.showTypeUpdateFrom = true;
-    },
-    // 添加分类信息
-    addType() {
-      if (this.addTypeInfo.name == "") {
-        this.showMessage(false, "分类名称必须填写");
-        return;
-      }
-      this.addTypeLoading = true;
-      this.ajax(
-        "/karl-openapi/FileTypeInfo/Add",
-        {
-          "fileTypeInfo.name": this.addTypeInfo.name,
-        },
-        (data) => {
-          this.addTypeLoading = false;
-          this.showMessage(data.success, data.message);
-          this.queryTypeInfo();
-        }
-      );
-    },
-    // 分类信息分页大小变化时触发
-    handleSizeChange(val) {
-      this.typeQueryInfo.page.pageSize = val;
-      this.queryTypeInfo();
-    },
-    // 分类信息页码变化时触发
-    handleCurrentChange(val) {
-      this.typeQueryInfo.page.pageNumber = val;
-      this.queryTypeInfo();
     },
     // 重置分类信息查询
     resetQueryType() {
@@ -1089,6 +1035,7 @@ export default {
 }
 
 .typeTables {
+  
   margin: 2rem;
   height: calc((@windowHeight - @titlesHeight) / 1.15);
   overflow-y: auto;
@@ -1200,5 +1147,4 @@ export default {
   background-color: #3399ff; /* 主按钮背景颜色 */
   border-color: #3399ff; /* 主按钮边框颜色 */
 }
-
 </style>

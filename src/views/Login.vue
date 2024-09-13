@@ -10,7 +10,7 @@
       <el-link class="project-link"  type="primary"  @click="goToProject(project)">{{ project.name }}</el-link>
     </li>
   </ul>
-  
+  <button @click="test()">Test</button>
   </el-form>
 </template>
 <script>
@@ -29,6 +29,10 @@ export default {
   },
   methods: {
     ...mapMutations(['setLogged', 'setFileTree' , 'setCurrentProject']),
+    test(){
+      this.setLogged(true);
+      this.$router.push('/test');
+    },
     fetchProjects() {
           getProjects().then(({ data }) => {
             console.log(data);

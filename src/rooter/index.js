@@ -4,6 +4,7 @@ import Home from "../views/Home.vue";
 import Main from "../views/Main.vue";
 import Login from "../views/Login.vue";
 import File from "../views/File.vue";
+import Test from "../views/Test.vue";
 
 Vue.use(VueRouter);
 // 1.创建路由组件
@@ -23,6 +24,7 @@ const routes = [
       //子路由
       { path: "home", name: "home", component: Home }, // 首页
       { path: "file", name: "file", component: File }, // 上传文件
+      { path: "test", name: "test", component: Test }, // 测试
     ],
   },
   {

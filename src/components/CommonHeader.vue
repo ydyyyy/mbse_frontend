@@ -1,13 +1,11 @@
 <template>
   <div class="header-container">
-    
     <div class="l-content">
-      <el-dropdown>
+      <el-dropdown  @command="handleCommand">
         <span class="el-dropdown-link">
           <img class="user" src="../assets/model.png" />
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>个人中心</el-dropdown-item>
           <el-dropdown-item command="cancel">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -15,10 +13,12 @@
     </div>
 
     <div class="r-content">
-        <el-button type="primary" icon="el-icon-upload" @click="goFilePage">大模型功能</el-button>
+      <img
+        src="../assets/upload.png"
+        @click="goFilePage"
+        style="width: 45px; cursor: pointer"
+      />
     </div>
-
-
   </div>
 </template>
 <script>
@@ -28,12 +28,23 @@ export default {
   },
   methods: {
     goFilePage() {
-      this.$router.push('/file'); 
+      if (this.$route.path == "/file"){
+      this.$message.error("你已在期望页面")
+      return
+      }
+      console.log("wobuhao")
+      this.$router.push("/file");
+    },
+    handleCommand(command) {
+      if (command === 'cancel') {
+        this.goOut();
+      }
+    },
+    goOut(){
+      this.$router.push("/login");
     }
   },
-  computed: {
-   
-  },
+  computed: {},
 };
 </script>
 <style lang="less" scoped>
@@ -72,10 +83,10 @@ export default {
   }
 }
 .project-title {
-    color: white;
-    font-weight: bold;
-    font-size: 24px;
-    margin-left: 20px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* 添加文字阴影增强对比 */
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  margin-left: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 添加文字阴影增强对比 */
 }
 </style>

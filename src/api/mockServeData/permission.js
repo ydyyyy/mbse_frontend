@@ -235,7 +235,7 @@ export default {
   getTypeFiles: (config) => {
     console.log(config.body);
     const val = JSON.parse(config.body);
-    if (val.fileTypeInfo.name == 1)
+    if (val.fileTypeInfo.content == 1)
       return {
         code: 20000,
         resultData: {
